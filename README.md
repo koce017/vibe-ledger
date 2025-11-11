@@ -1,3 +1,4 @@
+Vibe Ledger — workspace configured
 # Starter (Next.js + Clerk + Prisma + Neon)
 
 A complete, working starter aligned with the workshop "starter" folder name.

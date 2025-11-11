@@ -5,3 +5,4 @@
 - Tests cover edge cases; no obvious flakiness
 - Small, reviewable diffs; clear commit messages
 - Docs updated (README/CHANGELOG) when behavior changes
+- README header present
