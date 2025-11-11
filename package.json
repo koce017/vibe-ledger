@@ -1,0 +1,20 @@
+{
+  "name": "vibe-starter",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "latest",
+    "@prisma/client": "latest",
+    "dotenv": "^17.2.3",
+    "next": "latest",
+    "pg": "latest",
+    "prisma": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}

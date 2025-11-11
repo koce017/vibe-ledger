@@ -1,0 +1,8 @@
+# Cursor Rules (Project-Specific)
+- Keep diffs small; max 5 files per edit; always show preview and ask for approval.
+- Do not touch: .env, keys, .git/**, node_modules/**, .vercel/**.
+- Error handling: return proper HTTP status codes; respond with JSON {"error","details"} on failures.
+- Validation: for create entry, require: project (non-empty), type (one of: UI|API|test|security), prompt (non-empty).
+- Tests: whenever adding an API route, include one happy-path and one negative test example.
+- Filestructure (Next.js App Router): app/(routes)/entries, /entries/new, /report/[project], api/entries/route.{ts,js}
+- Style: small functions, clear names, comments only when needed.

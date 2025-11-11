@@ -1,0 +1,8 @@
+- Input validation present (happy + negative cases)
+- Correct HTTP status codes; consistent error response format
+- No secrets/PII in logs; structured logging
+- Pagination/limits where applicable; timeouts/retries
+- Tests cover edge cases; no obvious flakiness
+- Small, reviewable diffs; clear commit messages
+- Docs updated (README/CHANGELOG) when behavior changes
+- README header present

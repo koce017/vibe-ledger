@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EntryType {
+  UI
+  API
+  test
+  security
+}
+
+model Entry {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  project   String
+  type      EntryType
+  prompt    String
+  details   String?
+}
