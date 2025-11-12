@@ -1,0 +1,24 @@
+### Happy path: create an entry then list by project
+POST http://localhost:3000/api/entries
+Content-Type: application/json
+
+{
+  "project": "acme-web",
+  "type": "UI",
+  "prompt": "Improve navigation layout",
+  "details": "Users struggled to find the reports tab."
+}
+
+###
+GET http://localhost:3000/api/entries?project=acme-web
+
+
+### Negative: missing required project field
+POST http://localhost:3000/api/entries
+Content-Type: application/json
+
+{
+  "type": "API",
+  "prompt": "This should fail"
+}
+

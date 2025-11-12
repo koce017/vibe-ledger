@@ -7,9 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Example model to get started
-model Example {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  message   String
+enum EntryType {
+  UI
+  API
+  test
+  security
+}
+
+model Entry {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  project   String
+  type      EntryType
+  prompt    String
+  details   String?
 }
