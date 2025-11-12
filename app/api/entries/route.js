@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../lib/prisma";
+import { query } from "../../../lib/db";
 
 const ENTRY_TYPES = ["UI", "API", "test", "security"];
 
@@ -7,37 +7,33 @@ export async function GET(request) {
   const { searchParams } = request.nextUrl;
   const project = searchParams.get("project")?.trim();
 
-  if (!project) {
-    return NextResponse.json(
-      { error: "Bad Request", details: "Query parameter 'project' is required." },
-      { status: 400 }
-    );
-  }
-
   try {
-    const entries = await prisma.entry.findMany({
-      where: { project },
-      orderBy: { createdAt: "desc" },
-    });
+    const filters = [];
+    const values = [];
+
+    if (project) {
+      filters.push(`project = $${filters.length + 1}`);
+      values.push(project);
+    }
+
+    const whereClause = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+
+    const { rows } = await query(
+      `
+        SELECT id, project, type, created_at
+        FROM entries
+        ${whereClause}
+        ORDER BY created_at DESC
+        LIMIT 50
+      `,
+      values
+    );
 
     return NextResponse.json({
-      entries: entries.map((entry) => ({
-        id: entry.id,
-        project: entry.project,
-        type: entry.type,
-        prompt: entry.prompt,
-        details: entry.details,
-        createdAt: entry.createdAt.toISOString(),
-      })),
+      entries: rows.map(serializeRow),
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : "Unknown error.",
-      },
-      { status: 500 }
-    );
+    return dbError(error);
   }
 }
 
@@ -45,9 +41,9 @@ export async function POST(request) {
   let payload;
   try {
     payload = await request.json();
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
-      { error: "Bad Request", details: "Request body must be valid JSON." },
+      { error: "validation", details: "Request body must be valid JSON." },
       { status: 400 }
     );
   }
@@ -59,54 +55,60 @@ export async function POST(request) {
 
   if (!project) {
     return NextResponse.json(
-      { error: "Bad Request", details: "Field 'project' is required." },
+      { error: "validation", details: "Field 'project' is required." },
       { status: 400 }
     );
   }
 
   if (!ENTRY_TYPES.includes(type)) {
     return NextResponse.json(
-      { error: "Bad Request", details: "Field 'type' must be one of UI, API, test, security." },
+      { error: "validation", details: "Field 'type' must be one of UI, API, test, security." },
       { status: 400 }
     );
   }
 
   if (!prompt) {
     return NextResponse.json(
-      { error: "Bad Request", details: "Field 'prompt' is required." },
+      { error: "validation", details: "Field 'prompt' is required." },
       { status: 400 }
     );
   }
 
   try {
-    const entry = await prisma.entry.create({
-      data: {
-        project,
-        type,
-        prompt,
-        details: details || null,
-      },
-    });
+    const { rows } = await query(
+      `
+        INSERT INTO entries (project, type, prompt, details)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, project, type, created_at
+      `,
+      [project, type, prompt, details ?? null]
+    );
 
-    return NextResponse.json(
-      {
-        id: entry.id,
-        project: entry.project,
-        type: entry.type,
-        prompt: entry.prompt,
-        details: entry.details ?? undefined,
-        createdAt: entry.createdAt.toISOString(),
-      },
-      { status: 201 }
-    );
+    return NextResponse.json(serializeRow(rows[0]), { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : "Unknown error.",
-      },
-      { status: 500 }
-    );
+    return dbError(error);
   }
+}
+
+function serializeRow(row) {
+  if (!row) return row;
+  const createdAt = row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at;
+  return {
+    id: row.id,
+    project: row.project,
+    type: row.type,
+    created_at: createdAt,
+    createdAt,
+  };
+}
+
+function dbError(error) {
+  return NextResponse.json(
+    {
+      error: "db",
+      details: error instanceof Error ? error.message : "Unknown database error.",
+    },
+    { status: 500 }
+  );
 }
 

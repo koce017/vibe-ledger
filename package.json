@@ -8,11 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
     "@clerk/nextjs": "latest",
+    "@prisma/client": "latest",
+    "dotenv": "^17.2.3",
+    "next": "latest",
+    "pg": "latest",
     "prisma": "latest",
-    "@prisma/client": "latest"
+    "react": "latest",
+    "react-dom": "latest"
   }
 }
