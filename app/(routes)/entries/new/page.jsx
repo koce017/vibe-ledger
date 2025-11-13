@@ -11,7 +11,10 @@ export default function NewEntryPage() {
     project: "",
     type: ENTRY_TYPES[0],
     prompt: "",
-    details: "",
+    ai_draft: "",
+    edits: "",
+    why: "",
+    evidence: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -56,7 +59,7 @@ export default function NewEntryPage() {
           project: trimmedProject,
           type: form.type,
           prompt: trimmedPrompt,
-          details: form.details.trim() || undefined,
+          details: form.edits.trim() || undefined,
         }),
       });
 
@@ -66,14 +69,7 @@ export default function NewEntryPage() {
         return;
       }
 
-      setSuccess("Entry created!");
-      setForm({
-        project: trimmedProject,
-        type: ENTRY_TYPES[0],
-        prompt: "",
-        details: "",
-      });
-      router.refresh();
+      router.push("/entries");
     } catch (fetchError) {
       setError(fetchError instanceof Error ? fetchError.message : "Unexpected error.");
     } finally {
@@ -90,7 +86,7 @@ export default function NewEntryPage() {
         </div>
       </header>
 
-      <section style={{ marginTop: 24, maxWidth: 440 }}>
+      <section style={{ marginTop: 24, maxWidth: 640 }}>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <span>Project</span>
@@ -134,13 +130,49 @@ export default function NewEntryPage() {
           </label>
 
           <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <span>Details</span>
+            <span>AI draft</span>
             <textarea
-              name="details"
-              value={form.details}
-              onChange={updateField("details")}
-              placeholder="Optional context..."
+              name="ai_draft"
+              value={form.ai_draft}
+              onChange={updateField("ai_draft")}
+              placeholder="Optional AI draft or notes..."
               rows={4}
+              style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid #ccc" }}
+            />
+          </label>
+
+          <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <span>Edits</span>
+            <textarea
+              name="edits"
+              value={form.edits}
+              onChange={updateField("edits")}
+              placeholder="What changes did you make?"
+              rows={4}
+              required
+              style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid #ccc" }}
+            />
+          </label>
+
+          <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <span>Why</span>
+            <textarea
+              name="why"
+              value={form.why}
+              onChange={updateField("why")}
+              placeholder="Reasoning behind the change (optional)"
+              rows={3}
+              style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid #ccc" }}
+            />
+          </label>
+
+          <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <span>Evidence</span>
+            <input
+              name="evidence"
+              value={form.evidence}
+              onChange={updateField("evidence")}
+              placeholder="Link or note (optional)"
               style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid #ccc" }}
             />
           </label>

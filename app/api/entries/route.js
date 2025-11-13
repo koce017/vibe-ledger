@@ -20,7 +20,7 @@ export async function GET(request) {
 
     const { rows } = await query(
       `
-        SELECT id, project, type, created_at
+        SELECT id, project, type, prompt, details, created_at
         FROM entries
         ${whereClause}
         ORDER BY created_at DESC
@@ -97,6 +97,8 @@ function serializeRow(row) {
     id: row.id,
     project: row.project,
     type: row.type,
+    prompt: row.prompt,
+    details: row.details ?? null,
     created_at: createdAt,
     createdAt,
   };

@@ -1,41 +1,12 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { createApiUrl } from "../../../lib/http";
+import EntriesClient from "./table-client";
 
 export const dynamic = "force-dynamic";
 
-function coerceProject(rawProject) {
-  if (!rawProject) return "";
-  const value = Array.isArray(rawProject) ? rawProject[0] : rawProject;
-  return value.trim();
-}
-
-export default async function EntriesPage({ searchParams }) {
-  const project = coerceProject(searchParams?.project);
-
-  if (!project) {
-    return (
-      <main>
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <h1 style={{ marginBottom: 4 }}>Entries</h1>
-            <p style={{ color: "#555" }}>Pick a project to load recent entries.</p>
-          </div>
-          <Link href="/entries/new">Create Entry</Link>
-        </header>
-        <section style={{ marginTop: 24 }}>
-          <p style={{ fontSize: 18 }}>Pick a project</p>
-        </section>
-      </main>
-    );
-  }
-
-  const endpoint = createApiUrl(`/api/entries?project=${encodeURIComponent(project)}`);
+export default async function EntriesPage() {
+  const endpoint = createApiUrl(`/api/entries`);
   const response = await fetch(endpoint, { cache: "no-store" });
-
-  if (response.status === 404) {
-    notFound();
-  }
 
   if (!response.ok) {
     const body = await safeJson(response);
@@ -45,7 +16,7 @@ export default async function EntriesPage({ searchParams }) {
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ marginBottom: 4 }}>Entries</h1>
-            <p style={{ color: "#555" }}>{project}</p>
+            <p style={{ color: "#555" }}>Latest 50</p>
           </div>
           <Link href="/entries/new">Create Entry</Link>
         </header>
@@ -63,41 +34,12 @@ export default async function EntriesPage({ searchParams }) {
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1 style={{ marginBottom: 4 }}>Entries</h1>
-          <p style={{ color: "#555" }}>{project}</p>
+          <p style={{ color: "#555" }}>Latest 50</p>
         </div>
         <Link href="/entries/new">Create Entry</Link>
       </header>
 
-      <section style={{ marginTop: 24 }}>
-        {entries.length === 0 ? (
-          <p>No entries yet. Start by creating one.</p>
-        ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {entries.map((entry) => (
-              <li
-                key={entry.id}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                  padding: 16,
-                  marginBottom: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong>{entry.prompt}</strong>
-                  <span style={{ fontSize: 12, color: "#777" }}>
-                    {entry.type} • {new Date(entry.createdAt).toLocaleString()}
-                  </span>
-                </div>
-                {entry.details && <p style={{ margin: 0, color: "#333" }}>{entry.details}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <EntriesClient initialEntries={entries} />
     </main>
   );
 }
